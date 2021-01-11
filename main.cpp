@@ -2,15 +2,15 @@
 
 #include <iostream>
 #include <fstream>
+#include<string>
 using namespace std;
 
 long int vocung = 0;
-int W[100][100]; // ma tran trong so
+int weight[100][100]; // ma tran trong so
 int V = 0;       // so diem trong do thi
 int P[100];      // Tap hop diem tren duong di ngan nhat
 bool isUsed[100]; 
 int L[100]; // duong di ngan nhat tam thoi tu diem a toi diem hien tai
-bool error = false;
 void readFile()
 {
     ifstream inpFile;
@@ -27,7 +27,7 @@ void readFile()
                 inpFile >> value;
                 if (value >= 0)
                 {
-                    W[i][j] = value;
+                    weight[i][j] = value;
                     vocung += value;
                 }
                 else
@@ -40,9 +40,7 @@ void readFile()
     }
     else
     {
-        cout << "error reading file" << endl;
-        error = true;
-        return;
+        throw string("error reading file");
     }
 
     inpFile.close();
@@ -58,8 +56,8 @@ void init(int &a, int &z)
     for (int i = 1; i <= V; ++i)
         for (int j = 1; j <= V; ++j)
         {
-            if (i != j && W[i][j] == 0)
-                W[i][j] = vocung;
+            if (i != j && weight[i][j] == 0)
+                weight[i][j] = vocung;
         }
 
     // gan cac diem da di qua = false
@@ -90,8 +88,7 @@ void dijkstra(int &a, int &z)
         }
         if (MIN == vocung)
         {
-            error = true;
-            return;
+            throw string("Path doesn't exist");
         }
         else if(MIN < vocung)
         {
@@ -100,17 +97,16 @@ void dijkstra(int &a, int &z)
         }
 
         for (int j = 1; j <= V; ++j)
-            if (!isUsed[j] && L[index] + W[index][j] <= L[j])
+            if (!isUsed[j] && L[index] + weight[index][j] <= L[j])
             {
-                L[j] = L[index] + W[index][j];
+                L[j] = L[index] + weight[index][j];
                 P[j] = index;
             }
     }
 }
 void result(int a, int z)
 {
-    if (!error)
-    {
+  
         cout << endl;
         cout << "Duong di ngan nhat co do dai : " << L[z] << endl;
         cout << "Cach di: " << endl;
@@ -121,20 +117,22 @@ void result(int a, int z)
             cout << " <-- " << P[i];
             i = P[i];
         }
-    }
-    else
-    {
-        cout << "Khong ton tai duong di!";
-    }
 }
 int main()
 {
     int a, z;
-    readFile();
-    if(error)
-     return 0;
-    init(a, z);
-    dijkstra(a, z);
+    try
+    {
+        readFile();
+        init(a, z);
+        dijkstra(a, z);
+    }
+    catch(const string error)
+    {
+        cout<<error<<endl;
+        system("pause");
+        return 0;
+    }    
     result(a, z);
     return 0;
 }
